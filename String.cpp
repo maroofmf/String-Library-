@@ -128,7 +128,6 @@ bool String::readInput(){
     if(m_strLen2 ==0 && error_2 != INVALID_INPUT) error_2 = NULL_INPUT;
 
     fseek(stdin,0,SEEK_END); // Synonymous to clearing input buffer
-   
     return errorCheck(error_1,error_2); // Return true if the inputs were read sucessfully
 }
 
@@ -208,39 +207,28 @@ bool String::errorCheck(ErrorCode error_1,ErrorCode error_2){
     
     if(error_1 == NO_ERROR && error_2==NO_ERROR) return true;
     
+    std::cout << "//-------------------------Report-------------------------//" << std::endl;
+    
     if(error_1 == INVALID_INPUT && error_2 == INVALID_INPUT){
-        
-        std::cout << "//-------------------------Report-------------------------//" << std::endl;
-        std::cout << "** String 1 and String 2 should only contain alpha-numeric values!" << std::endl;
-        std::cout << "//--------------------------End--------------------------//" << std::endl;
-        
+        std::cout << "** String 1 and String 2 should only contain ASCII alpha-numeric values!" << std::endl;
     }else if(error_1 == INVALID_INPUT){
-        std::cout << "//-------------------------Report-------------------------//" << std::endl;
-        std::cout << "** String 1 should only contain alpha-numeric values!" << std::endl;
-        std::cout << "//--------------------------End--------------------------//" << std::endl;
+        std::cout << "** String 1 should only contain ASCII alpha-numeric values!" << std::endl;
     }else if(error_2 ==INVALID_INPUT){
-        std::cout << "//-------------------------Report-------------------------//" << std::endl;
-        std::cout << "** String 2 should only contain alpha-numeric values!" << std::endl;
-        std::cout << "//--------------------------End--------------------------//" << std::endl;
+        std::cout << "** String 2 should only contain ASCII alpha-numeric values!" << std::endl;
     }
 
     
     if(error_1 == NULL_INPUT && error_2 == NULL_INPUT){
-        
-        std::cout << "//-------------------------Report-------------------------//" << std::endl;
         std::cout << "** String 1 and String 2 should not be null!" << std::endl;
-        std::cout << "//--------------------------End--------------------------//" << std::endl;
         
     }else if(error_1 == NULL_INPUT){
-        std::cout << "//-------------------------Report-------------------------//" << std::endl;
         std::cout << "** String 1 should not be null!" << std::endl;
-        std::cout << "//--------------------------End--------------------------//" << std::endl;
     }else if(error_2 == NULL_INPUT){
-        std::cout << "//-------------------------Report-------------------------//" << std::endl;
         std::cout << "** String 2 should not be null!" << std::endl;
-        std::cout << "//--------------------------End--------------------------//" << std::endl;
     }
 
+    std::cout << "//--------------------------End--------------------------//" << std::endl;
+    
     return false;
 
 }
@@ -248,14 +236,34 @@ bool String::errorCheck(ErrorCode error_1,ErrorCode error_2){
 //------------------------------------------------------------------------//
 /* Function: Compare function
  * @Params: No parameters
- * @Description: Returns the difference between two lengths
+ * @Description: Returns the difference between two strings
  * @Usage: Restricted ouside class!
  */
 
 int String::compare(){
     
+    int shortLen = m_strLen1 <= m_strLen2? m_strLen1 : m_strLen2;
+    int returnValue = 0;
+
+    for(int i=0;i<shortLen;++i){
+        
+        // If the values are not equal, then set return value to the difference in ASCII value
+        if((*(m_str1+i))!=(*(m_str2+i))){
+            //if(i%2==1) returnValue = 256*(static_cast<int>(*(m_str1+i)) - static_cast<int>(*(m_str2+i)));
+            //else returnValue = (static_cast<int>(*(m_str1+i)) - static_cast<int>(*(m_str2+i)));
+            returnValue = (static_cast<int>(*(m_str1+i)) - static_cast<int>(*(m_str2+i)));
+            break;
+        }
+    
+    }
+    
+    // If string 1 and string 2 chars are same:
+    if(returnValue==0){
+        returnValue = m_strLen1-m_strLen2;
+    }
+    
     // Returns 0,+ve or -ve value based on string lengths
-    return(m_strLen1-m_strLen2);
+    return(returnValue);
 
 }
 
@@ -263,20 +271,20 @@ int String::compare(){
 //------------------------------------------------------------------------//
 /* Function: In place inverting the string
  * @Params: No Parameters
- * @Description: Performs in place inversion for both the strings
- * @Usage: 
+ * @Description: Performs in place inversion for both the strings using XOR
+ * @Usage: Restricted access! 
  */
 
 void String::invert(){
     
     // Invert String 1 using XOR:
-    char* startPtr = m_str1;
-    char* endPtr = m_str1;
-    while(endPtr && *endPtr!='\0') ++endPtr;
+    char* startPtr = m_str1; // Save starting pointers
+    char* endPtr = m_str1;  // Save ending pointer
+    while(endPtr && *endPtr!='\0') ++endPtr; // Find the end pointer
     for(--endPtr; startPtr<endPtr; ++startPtr,--endPtr){
-        *startPtr = (*startPtr)^(*endPtr);
-        *endPtr = (*startPtr)^(*endPtr);
-        *startPtr = (*startPtr)^(*endPtr);
+        *startPtr = (*startPtr)^(*endPtr);  // First char = (first char)^(second char)
+        *endPtr = (*startPtr)^(*endPtr);    // End char = (first char)^(second char)
+        *startPtr = (*startPtr)^(*endPtr);  // First char = (first char)^(second char) 
     }
 
     // Invert String 2:
@@ -292,19 +300,22 @@ void String::invert(){
 }
 
 //------------------------------------------------------------------------//
-/* Function: In-place concat the strings
- * @Params:
+/* Function: Concat the strings
+ * @Params: No Parameters
+ * @Description: Function to concatenate two strings which returns a pointer
+ *               to array charecters
+ * @Usage: Restricted access
  */
 
 char* String::concat(){
     
     char* resultStr = new char[m_strLen1 + m_strLen2 + 1]; // Dynamically allocating concat string;
-    char* currentIndex = resultStr;
+    char* currentIndex = resultStr; 
 
     // Inserting string 1:
-    char* str_index = m_str1;
+    char* str_index = m_str1;   // Coping pointer to start of string index
     for(int i=0;i<m_strLen1;i++){
-        *currentIndex = *str_index;
+        *currentIndex = *str_index; // Updating string 1 contents to new string
         ++currentIndex;
         ++str_index;
     }
@@ -312,24 +323,26 @@ char* String::concat(){
     // Inserting string 2:
     str_index = m_str2;
     for(int i=0;i<m_strLen2;i++){
-        *currentIndex = *str_index;
+        *currentIndex = *str_index; // Updating string 2 contents to new string
         ++currentIndex;
         ++str_index;
     }
-    *currentIndex = '\0';
+    *currentIndex = '\0'; // Append termination char
     return resultStr;
     
 }
 
 //------------------------------------------------------------------------//
 /* Function: Merge two strings 
- * Params:
+ * @Params: No Parameters
+ * @Description: Retuns the merged two strings in new array of chars
+ * @Usage: Restricted Usage!
  */
 
 char* String::merge(){
 
 
-    char* resultStr = new char[m_strLen1 + m_strLen2 +1];
+    char* resultStr = new char[m_strLen1 + m_strLen2 +1]; // Create an appropriate sized char
     char* currentIndex = resultStr;
 
     char* str1_index = m_str1;
@@ -337,7 +350,7 @@ char* String::merge(){
 
     while((*str1_index!='\0') && (*str2_index!='\0')){
         
-        *currentIndex = *str1_index;
+        *currentIndex = *str1_index;    
         ++currentIndex;
         *currentIndex = *str2_index;
 
@@ -348,13 +361,18 @@ char* String::merge(){
     
     }
     
+    // Check if string 1 reached its end
     if(*str1_index == '\0'){
+
+        // Update remaining of string 2
         while(*str2_index!='\0'){
             *currentIndex = *str2_index;
             ++currentIndex;
             ++str2_index;
         }
     }else if(*str2_index == '\0'){
+
+        // Update remaining of string 1
         while(*str1_index!='\0'){
             *currentIndex = *str1_index;
             ++currentIndex;
@@ -362,19 +380,22 @@ char* String::merge(){
         }
     }
 
-    *currentIndex = '\0'; 
+    *currentIndex = '\0'; // Null termination
     return resultStr;
 }
 
 //------------------------------------------------------------------------//
 /* Function: Print Final Report
- * Params:
+ * @Params: No Parameters
+ * @Description: Print a report if input have been sucessfully read
+ * @Usage: 
+ *      > myObj->printReport()
  */
 
 void String::printReport(){
     
     std::cout << "//-------------------------Report-------------------------//" << std::endl;
-
+    
     int compareValue = compare();
     std::cout << "** The returned value for both strings is: " << compareValue << std::endl;
 

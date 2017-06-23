@@ -4,7 +4,8 @@
 int main(){
     
     char a;
-    std::cout << int('\n') << std::endl;
+    a = getc(stdin);
+    std::cout << int(a) << std::endl;
     return 0;
 
 }
