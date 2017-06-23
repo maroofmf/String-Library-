@@ -168,19 +168,25 @@ void String::resize(char* &str,char* &iterationIndex, long& capacity){
 /* Function: Check for each chacter
  * @Params:
  *      * inputChar -> character variable
+ * @Description: 
+ *      * Checks if the input cahracter lies within a range
+ *      * If the character lies withing the ASCII values then the function 
+ *        returns true or else it returns false
+ * @Usage: Restricted use
  */
 
 bool String::checkChar(const char& inputChar){
     
+    // Convert char to int to compare:
     const int ASCII_value = static_cast<const int>(inputChar);
 
-    if( ASCII_value >= 48 && ASCII_value <=57){
+    if( ASCII_value >= 48 && ASCII_value <=57){ // Checks if the character is a number
         return true;
-    }else if( ASCII_value >= 65 && ASCII_value <=90 ){
+    }else if( ASCII_value >= 65 && ASCII_value <=90 ){ // Checks if the character is alpahbet (A-Z)
         return true;
-    }else if(ASCII_value >= 97 && ASCII_value <=122){
+    }else if(ASCII_value >= 97 && ASCII_value <=122){ // Checks if the character is an alphabet (a-z)
         return true;
-    }else if(ASCII_value == 10){
+    }else if(ASCII_value == 10){ // Checks if it is an enter '\n'.
         return true;
     }
 
@@ -190,7 +196,12 @@ bool String::checkChar(const char& inputChar){
 
 //------------------------------------------------------------------------//
 /* Function: Check for error in input
- * Params:
+ * @Params: 
+ *      * error_1 -> takes error code #1 (enum)
+ *      * error_@ -> takes error code #2 (enum)
+ * @Desription:
+ *      * Takes two error codes and displays the error based on error type
+ * @Usage: Restricted use to class only!
  */
 
 bool String::errorCheck(ErrorCode error_1,ErrorCode error_2){
@@ -236,7 +247,9 @@ bool String::errorCheck(ErrorCode error_1,ErrorCode error_2){
 
 //------------------------------------------------------------------------//
 /* Function: Compare function
- * Params:
+ * @Params: No parameters
+ * @Description: Returns the difference between two lengths
+ * @Usage: Restricted ouside class!
  */
 
 int String::compare(){
@@ -249,7 +262,9 @@ int String::compare(){
 
 //------------------------------------------------------------------------//
 /* Function: In place inverting the string
- * Params:
+ * @Params: No Parameters
+ * @Description: Performs in place inversion for both the strings
+ * @Usage: 
  */
 
 void String::invert(){
