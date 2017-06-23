@@ -38,7 +38,7 @@ class String{
         String();
         ~String();
         bool readInput();
-        void resize(char* &str,char* &iterationIndex, int& capacity);
+        void resize(char* &str,char* &iterationIndex, long& capacity);
         bool checkChar(const char& inputChar); 
         bool errorCheck(ErrorCode error_1,ErrorCode error_2);
         int compare();

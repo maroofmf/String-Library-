@@ -143,7 +143,7 @@ bool String::readInput(){
  * @Usage: Restricted! Should not access outside class
  */
 
-void String::resize(char* &str,char* &iterationIndex, int& capacity){
+void String::resize(char* &str,char* &iterationIndex, long& capacity){
     
     // Dynamically allocate new contigious memory
     char* temp = new char[capacity*2];
