@@ -1,0 +1,388 @@
+// ---------------------------------------------------------------------//
+// Author:      Maroof
+// File Name:   String.cpp
+// File Type:   Cpp File
+// Purpose:     Implementation of String class.
+// Description: 
+//  * Perform operations on two strings
+//  * Read README.md for high level details for functions
+//  * Further details provided in the functions
+// ---------------------------------------------------------------------//
+
+#include "String.hpp"
+#include <iostream>
+#include <stdio.h>
+
+using namespace lib;
+
+
+//------------------------------------------------------------------------//
+/* Function:Default Constructor
+ * @Params: No Parameters
+ * @Description: Called when object is constructed
+ * @Usage: 
+ *      > String* test1 = new String;
+ *      > String test2;
+ */
+
+String::String(){}
+
+//------------------------------------------------------------------------//
+/* Function: Destructor
+ * @Params: No Parameters
+ * @Description: Called when object is deleted
+ * @Usage: 
+ *      > delete test1;
+ */
+
+String::~String(){
+   
+    // Free Dynamically allocated member variables to prevent memory leaks 
+    delete[] m_str1;
+    delete[] m_str2;
+}
+
+
+//------------------------------------------------------------------------//
+/* Function: Read Input from console
+ * @Params: No Parameters
+ * @Description: 
+ *      * Function to read input and call other functions to handle input
+ *      * Returns true if read is successful
+ *      * Returns false if read is unsuccessful
+ * @Usage: 
+ *       > String* test1 = new String;
+ *       > test1->readInput();
+ */
+
+bool String::readInput(){
+    
+    // Reading input for first string:
+    std::cout << "Enter String 1:";
+    char c;                 // Temporary Character
+    char* str1_ptr = m_str1;  // Running pointer to store values
+    ErrorCode error_1 = NO_ERROR; // Error handling for input 1
+    
+    // Read input buffer character by character
+    do{
+        c = getc(stdin);
+
+        // Check if input character is valid.
+        if(!checkChar(c)){
+            error_1 = INVALID_INPUT;
+            break;
+        }
+        
+        // Store character in the input string
+        *str1_ptr = c;
+        
+        // Update pointer and length 
+        ++str1_ptr;
+        ++m_strLen1;
+        
+        // Resize the array if the capacity has been reached!
+        if(m_strLen1+1 == m_strCapacity1){
+            resize(m_str1,str1_ptr,m_strCapacity1);    
+        }
+    
+    } while(c!='\n');
+    
+    // Add '\0' to terminate the string
+    if(m_strLen1!=0){
+        --m_strLen1; //  This is done because the do-while loop increments the value for \n too!
+        *(str1_ptr-1) = '\0';
+    }
+    
+    // Add error code if the input string is null
+    if(m_strLen1 ==0 && error_1 != INVALID_INPUT) error_1 = NULL_INPUT;
+
+    fseek(stdin,0,SEEK_END); // Synonymous to clearing input buffer
+    
+    // Reading input for second string:
+    std::cout << "Enter String 2:";
+    char* str2_ptr = m_str2;  // Pointer to first element
+    ErrorCode error_2 = NO_ERROR;// Error handling for input 2
+    
+    // Process similar for string 1 :p
+    do{
+        c = getc(stdin);
+        if(!checkChar(c)){
+            error_2 = INVALID_INPUT;
+            break;
+        } 
+        *str2_ptr = c;
+        ++str2_ptr;
+        ++m_strLen2;
+        
+        if(m_strLen2+1 == m_strCapacity2){
+            resize(m_str2,str2_ptr,m_strCapacity2);    
+        }
+    
+    } while(c!='\n');
+    
+    if(m_strLen2!=0){
+        --m_strLen2;
+        *(str2_ptr-1) = '\0';
+    }
+    
+    if(m_strLen2 ==0 && error_2 != INVALID_INPUT) error_2 = NULL_INPUT;
+
+    fseek(stdin,0,SEEK_END); // Synonymous to clearing input buffer
+   
+    return errorCheck(error_1,error_2); // Return true if the inputs were read sucessfully
+}
+
+//------------------------------------------------------------------------//
+/* Function: Resize String;
+ * @Params: 
+ *     * str -> string to be resized
+ *     * iterationIndex -> Current iteration index. Updates it to reflect 
+ *                          the current position during previous iterations 
+ *     * capacity -> Reads the current capacity and changes it to double.
+ * @Description: This function implements table doubling method for resizing array
+ * @Usage: Restricted! Should not access outside class
+ */
+
+void String::resize(char* &str,char* &iterationIndex, int& capacity){
+    
+    // Dynamically allocate new contigious memory
+    char* temp = new char[capacity*2];
+    
+    // Copy array values from previous array
+    for(int i=0;i<capacity-1;++i){
+        *(temp+i)=*(str+i);
+    }
+    
+    // Update iteration index to point to the current index used in iteration
+    iterationIndex = (temp+capacity-1);
+
+    // Update capacity
+    capacity = 2*capacity;
+
+    // Delete dynamically allocated memory and update str pointer
+    delete str;
+    str = temp;
+}
+
+//------------------------------------------------------------------------//
+/* Function: Check for each chacter
+ * @Params:
+ *      * inputChar -> character variable
+ */
+
+bool String::checkChar(const char& inputChar){
+    
+    const int ASCII_value = static_cast<const int>(inputChar);
+
+    if( ASCII_value >= 48 && ASCII_value <=57){
+        return true;
+    }else if( ASCII_value >= 65 && ASCII_value <=90 ){
+        return true;
+    }else if(ASCII_value >= 97 && ASCII_value <=122){
+        return true;
+    }else if(ASCII_value == 10){
+        return true;
+    }
+
+    return false;
+}
+
+
+//------------------------------------------------------------------------//
+/* Function: Check for error in input
+ * Params:
+ */
+
+bool String::errorCheck(ErrorCode error_1,ErrorCode error_2){
+    
+    if(error_1 == NO_ERROR && error_2==NO_ERROR) return true;
+    
+    if(error_1 == INVALID_INPUT && error_2 == INVALID_INPUT){
+        
+        std::cout << "//-------------------------Report-------------------------//" << std::endl;
+        std::cout << "** String 1 and String 2 should only contain alpha-numeric values!" << std::endl;
+        std::cout << "//--------------------------End--------------------------//" << std::endl;
+        
+    }else if(error_1 == INVALID_INPUT){
+        std::cout << "//-------------------------Report-------------------------//" << std::endl;
+        std::cout << "** String 1 should only contain alpha-numeric values!" << std::endl;
+        std::cout << "//--------------------------End--------------------------//" << std::endl;
+    }else if(error_2 ==INVALID_INPUT){
+        std::cout << "//-------------------------Report-------------------------//" << std::endl;
+        std::cout << "** String 2 should only contain alpha-numeric values!" << std::endl;
+        std::cout << "//--------------------------End--------------------------//" << std::endl;
+    }
+
+    
+    if(error_1 == NULL_INPUT && error_2 == NULL_INPUT){
+        
+        std::cout << "//-------------------------Report-------------------------//" << std::endl;
+        std::cout << "** String 1 and String 2 should not be null!" << std::endl;
+        std::cout << "//--------------------------End--------------------------//" << std::endl;
+        
+    }else if(error_1 == NULL_INPUT){
+        std::cout << "//-------------------------Report-------------------------//" << std::endl;
+        std::cout << "** String 1 should not be null!" << std::endl;
+        std::cout << "//--------------------------End--------------------------//" << std::endl;
+    }else if(error_2 == NULL_INPUT){
+        std::cout << "//-------------------------Report-------------------------//" << std::endl;
+        std::cout << "** String 2 should not be null!" << std::endl;
+        std::cout << "//--------------------------End--------------------------//" << std::endl;
+    }
+
+    return false;
+
+}
+
+//------------------------------------------------------------------------//
+/* Function: Compare function
+ * Params:
+ */
+
+int String::compare(){
+    
+    // Returns 0,+ve or -ve value based on string lengths
+    return(m_strLen1-m_strLen2);
+
+}
+
+
+//------------------------------------------------------------------------//
+/* Function: In place inverting the string
+ * Params:
+ */
+
+void String::invert(){
+    
+    // Invert String 1 using XOR:
+    char* startPtr = m_str1;
+    char* endPtr = m_str1;
+    while(endPtr && *endPtr!='\0') ++endPtr;
+    for(--endPtr; startPtr<endPtr; ++startPtr,--endPtr){
+        *startPtr = (*startPtr)^(*endPtr);
+        *endPtr = (*startPtr)^(*endPtr);
+        *startPtr = (*startPtr)^(*endPtr);
+    }
+
+    // Invert String 2:
+    startPtr = m_str2;
+    endPtr = m_str2;
+    while(endPtr && *endPtr!='\0') ++endPtr;
+    for(--endPtr; startPtr<endPtr; ++startPtr,--endPtr){
+        *startPtr = (*startPtr)^(*endPtr);
+        *endPtr = (*startPtr)^(*endPtr);
+        *startPtr = (*startPtr)^(*endPtr);
+    }
+
+}
+
+//------------------------------------------------------------------------//
+/* Function: In-place concat the strings
+ * @Params:
+ */
+
+char* String::concat(){
+    
+    char* resultStr = new char[m_strLen1 + m_strLen2 + 1]; // Dynamically allocating concat string;
+    char* currentIndex = resultStr;
+
+    // Inserting string 1:
+    char* str_index = m_str1;
+    for(int i=0;i<m_strLen1;i++){
+        *currentIndex = *str_index;
+        ++currentIndex;
+        ++str_index;
+    }
+
+    // Inserting string 2:
+    str_index = m_str2;
+    for(int i=0;i<m_strLen2;i++){
+        *currentIndex = *str_index;
+        ++currentIndex;
+        ++str_index;
+    }
+    *currentIndex = '\0';
+    return resultStr;
+    
+}
+
+//------------------------------------------------------------------------//
+/* Function: Merge two strings 
+ * Params:
+ */
+
+char* String::merge(){
+
+
+    char* resultStr = new char[m_strLen1 + m_strLen2 +1];
+    char* currentIndex = resultStr;
+
+    char* str1_index = m_str1;
+    char* str2_index = m_str2;
+
+    while((*str1_index!='\0') && (*str2_index!='\0')){
+        
+        *currentIndex = *str1_index;
+        ++currentIndex;
+        *currentIndex = *str2_index;
+
+        // Update pointers
+        ++currentIndex;
+        ++str1_index;
+        ++str2_index;
+    
+    }
+    
+    if(*str1_index == '\0'){
+        while(*str2_index!='\0'){
+            *currentIndex = *str2_index;
+            ++currentIndex;
+            ++str2_index;
+        }
+    }else if(*str2_index == '\0'){
+        while(*str1_index!='\0'){
+            *currentIndex = *str1_index;
+            ++currentIndex;
+            ++str1_index;
+        }
+    }
+
+    *currentIndex = '\0'; 
+    return resultStr;
+}
+
+//------------------------------------------------------------------------//
+/* Function: Print Final Report
+ * Params:
+ */
+
+void String::printReport(){
+    
+    std::cout << "//-------------------------Report-------------------------//" << std::endl;
+
+    int compareValue = compare();
+    std::cout << "** The returned value for both strings is: " << compareValue << std::endl;
+
+    if(compareValue == 0){
+        char* output = merge();
+        std::cout << "** The returned string is: " << output << std::endl;
+        delete output;
+        output = nullptr;
+    }else if(compareValue < 0 ){
+        invert();
+        char* output = concat();
+        std::cout << "** The returned string is: " << output << std::endl;
+        delete output;
+        output = nullptr;
+    }else{
+        invert();
+        char* output = merge();
+        std::cout << "** The returned string is: " << output << std::endl;
+        delete output;
+        output = nullptr;
+    }
+
+    std::cout << "//--------------------------End--------------------------//" << std::endl;
+
+}
+
